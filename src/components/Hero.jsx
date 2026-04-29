@@ -178,7 +178,7 @@ export default function Hero() {
               </motion.p>
               <motion.div className="hero-actions" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }}>
                 <a href="#contact" className="btn-primary">Obtenir un devis gratuit</a>
-                <a href="tel:+33400000000" className="btn-ghost" style={{ gap: '0.75rem' }}><Phone size={15} /> 04 00 00 00 00</a>
+                <a href="tel:+33400000000" className="btn-ghost"><Phone size={18} /> 04 00 00 00 00</a>
               </motion.div>
             </div>
           </div>
