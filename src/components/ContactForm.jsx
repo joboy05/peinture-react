@@ -1,107 +1,126 @@
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Phone, Mail, Clock, MapPin, ArrowRight } from 'lucide-react';
+import emailjs from '@emailjs/browser';
+
+const info = [
+  { icon: <Phone size={16} />, label: '04 00 00 00 00', href: 'tel:+33400000000' },
+  { icon: <Mail size={16} />, label: 'contact@peintre-interieur-marseille.fr' },
+  { icon: <Clock size={16} />, label: 'Lundi - Samedi · 8 h - 19 h' },
+  { icon: <MapPin size={16} />, label: 'Marseille et communes limitrophes' },
+];
 
 export default function ContactForm() {
   const [status, setStatus] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus('success');
+    setLoading(true);
+    
+    try {
+      await emailjs.sendForm(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_id_placeholder',
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_id_placeholder',
+        e.target,
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'public_key_placeholder'
+      );
+      setStatus('success');
+    } catch (error) {
+      console.error('EmailJS Error:', error);
+      setStatus('error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <section className="section section-primary" id="contact" aria-labelledby="contact-title">
-      <div className="container contact-grid">
-        <div className="contact-intro">
-          <p className="eyebrow eyebrow--light">Demande de devis</p>
-          <h2 id="contact-title" className="section-heading section-heading--light">
-            Votre devis peinture intérieure<br />en 24 h, sans engagement
-          </h2>
-          <p className="contact-lead">
-            Remplissez le formulaire : nous revenons vers vous dans la journée pour fixer une visite gratuite à
-            Marseille. Précisez la pièce concernée et vos contraintes de planning, nous ferons le maximum pour
-            nous adapter.
-          </p>
+    <section className="contact" id="contact">
+      {/* Chic Background Animation: Outlined Circles & Glowing Dots */}
+      <div className="contact-bg-elements">
+        <motion.div className="outline-circle circle-1" 
+          animate={{ y: [0, -40, 0], x: [0, 20, 0] }} 
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }} />
+        <motion.div className="outline-circle circle-2" 
+          animate={{ y: [0, 30, 0], scale: [1, 1.1, 1] }} 
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1 }} />
+        <div className="glow-dot dot-1"></div>
+        <div className="glow-dot dot-2"></div>
+        <div className="glow-dot dot-3"></div>
+      </div>
 
-          <ul className="contact-info-list">
-            <li>
-              <svg className="ic" viewBox="0 0 24 24" aria-hidden="true" width="20" height="20">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.72a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-              </svg>
-              <a href="tel:+33400000000">04 00 00 00 00</a>
-            </li>
-            <li>
-              <svg className="ic" viewBox="0 0 24 24" aria-hidden="true" width="20" height="20">
-                <rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>
-              </svg>
-              contact@peintre-interieur-marseille.fr
-            </li>
-            <li>
-              <svg className="ic" viewBox="0 0 24 24" aria-hidden="true" width="20" height="20">
-                <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
-              </svg>
-              Lundi - Samedi · 8 h - 19 h
-            </li>
-            <li>
-              <svg className="ic" viewBox="0 0 24 24" aria-hidden="true" width="20" height="20">
-                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
-              </svg>
-              Marseille et communes limitrophes
-            </li>
-          </ul>
-        </div>
+      <div className="container">
+        <div className="contact-grid">
+          <motion.div className="contact-intro"
+            initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}>
+            <p className="section-label">Demande de devis</p>
+            <h2>Votre devis <em>gratuit</em><br />en 24 h</h2>
+            <p>Remplissez le formulaire : nous revenons vers vous dans la journée pour fixer une visite gratuite à Marseille.</p>
+            <ul className="contact-info">
+              {info.map((item, i) => (
+                <li key={i}>
+                  {item.icon}
+                  {item.href ? <a href={item.href}>{item.label}</a> : <span>{item.label}</span>}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
 
-        <div className="contact-form-wrap">
-          {status === 'success' ? (
-            <div className="contact-form-feedback contact-form-feedback--success">
-              Merci ! Votre demande a été envoyée avec succès. Nous vous recontacterons sous 24 h.
-            </div>
-          ) : (
-            <form className="contact-form" onSubmit={handleSubmit}>
-              <div className="hp-field" aria-hidden="true">
-                <label htmlFor="field-hp">Ne pas remplir ce champ</label>
-                <input type="text" id="field-hp" name="field_hp" tabIndex="-1" autoComplete="off" />
+          <motion.div className="contact-form"
+            initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}>
+            {status === 'success' ? (
+              <div className="contact-success">
+                <div className="success-mark">✓</div>
+                <h3>Message envoyé</h3>
+                <p>Nous vous recontactons sous 24 h.</p>
               </div>
-
-              <div className="contact-row">
-                <div className="contact-field">
-                  <label htmlFor="name">Nom &amp; Prénom</label>
-                  <input type="text" id="name" name="name" required autoComplete="name" placeholder="Votre nom complet" />
+            ) : status === 'error' ? (
+              <div className="contact-error">
+                <div className="error-mark">!</div>
+                <h3>Erreur d'envoi</h3>
+                <p>Désolé, un problème est survenu. Veuillez réessayer ou nous appeler directement.</p>
+                <button onClick={() => setStatus(null)} className="btn-retry">Réessayer</button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit}>
+                <div className="form-row">
+                  <div className="form-field">
+                    <label htmlFor="name">Nom & Prénom</label>
+                    <input type="text" id="name" name="name" required placeholder="Votre nom complet" />
+                  </div>
+                  <div className="form-field">
+                    <label htmlFor="phone">Téléphone</label>
+                    <input type="tel" id="phone" name="phone" required placeholder="06 XX XX XX XX" />
+                  </div>
                 </div>
-                <div className="contact-field">
-                  <label htmlFor="phone">Téléphone</label>
-                  <input type="tel" id="phone" name="phone" required autoComplete="tel" placeholder="06 XX XX XX XX" />
+                <div className="form-field" style={{ marginBottom: '1.5rem' }}>
+                  <label htmlFor="email">Adresse e-mail</label>
+                  <input type="email" id="email" name="email" required placeholder="vous@exemple.fr" />
                 </div>
-              </div>
-
-              <div className="contact-field">
-                <label htmlFor="email">Adresse e-mail</label>
-                <input type="email" id="email" name="email" required autoComplete="email" placeholder="vous@exemple.fr" />
-              </div>
-
-              <div className="contact-row">
-                <div className="contact-field">
-                  <label htmlFor="postal">Code postal</label>
-                  <input type="text" id="postal" name="postal" required maxLength="5" placeholder="13001" />
+                <div className="form-row">
+                  <div className="form-field">
+                    <label htmlFor="postal">Code postal</label>
+                    <input type="text" id="postal" name="postal" required maxLength="5" placeholder="13001" />
+                  </div>
+                  <div className="form-field">
+                    <label htmlFor="city">Ville</label>
+                    <input type="text" id="city" name="city" required placeholder="Marseille" />
+                  </div>
                 </div>
-                <div className="contact-field">
-                  <label htmlFor="city">Ville</label>
-                  <input type="text" id="city" name="city" required placeholder="Marseille" />
+                <div className="form-field" style={{ marginBottom: '0.5rem' }}>
+                  <label htmlFor="message">Décrivez votre projet</label>
+                  <textarea id="message" name="message" rows="4" required
+                    placeholder="Ex : peinture complète de mon salon 35 m², murs et plafond, teinte blanche cassée…" />
                 </div>
-              </div>
-
-              <div className="contact-field">
-                <label htmlFor="message">Décrivez votre projet</label>
-                <textarea id="message" name="message" rows="4" required
-                          placeholder="Ex : peinture complète de mon salon 35 m² à Marseille, murs et plafond, teinte blanche cassée, idéalement en mars…"></textarea>
-              </div>
-
-              <button type="submit" className="btn btn-dark btn-block">Envoyer ma demande de devis</button>
-              <p className="contact-disclaimer">
-                En soumettant ce formulaire, vous acceptez d'être recontacté concernant votre demande de devis.
-                Vos données ne sont jamais revendues.
-              </p>
-            </form>
-          )}
+                <button type="submit" className="btn-submit" disabled={loading}>
+                  {loading ? 'Envoi…' : <><span>Envoyer ma demande</span><ArrowRight size={18} /></>}
+                </button>
+                <p className="form-note">Vos données ne sont jamais revendues. Réponse garantie sous 24 h.</p>
+              </form>
+            )}
+          </motion.div>
         </div>
       </div>
     </section>

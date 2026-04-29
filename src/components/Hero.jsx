@@ -1,124 +1,198 @@
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Phone, Mail, Clock, Menu, X } from 'lucide-react';
+
+const navLinks = [
+  { label: 'Prestations', href: '#services' },
+  { label: 'Méthode', href: '#methode' },
+  { label: 'Avis', href: '#avis' },
+  { label: 'FAQ', href: '#faq' },
+];
+
+const marqueeItems = [
+  'Peinture intérieure', 'Boiseries & menuiseries', 'Papier peint', 'Finitions haut de gamme',
+  'Peinture intérieure', 'Boiseries & menuiseries', 'Papier peint', 'Finitions haut de gamme',
+];
 
 export default function Hero() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const closeMenu = () => setIsMenuOpen(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    if (isMenuOpen) {
-      document.body.classList.add('no-scroll');
-    } else {
-      document.body.classList.remove('no-scroll');
-    }
-  }, [isMenuOpen]);
+    const fn = () => setScrolled(window.scrollY > 60);
+    window.addEventListener('scroll', fn, { passive: true });
+    return () => window.removeEventListener('scroll', fn);
+  }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle('no-scroll', menuOpen);
+  }, [menuOpen]);
 
   return (
     <>
-      {/* ============================================================
-           TOP BAR (infos de contact)
-      ============================================================ */}
-      <div className="topbar" aria-label="Informations de contact">
-        <div className="container topbar-inner">
-          <span className="topbar-item">
-            <svg className="ic" viewBox="0 0 24 24" aria-hidden="true" width="14" height="14">
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.72a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-            </svg>
-            <a href="tel:+33400000000">04 00 00 00 00</a>
-          </span>
-          <span className="topbar-item topbar-item--hide-mobile">
-            <svg className="ic" viewBox="0 0 24 24" aria-hidden="true" width="14" height="14">
-              <rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>
-            </svg>
-            contact@peintre-interieur-marseille.fr
-          </span>
-          <span className="topbar-item topbar-item--hide-mobile">
-            <svg className="ic" viewBox="0 0 24 24" aria-hidden="true" width="14" height="14">
-              <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
-            </svg>
-            Lun - Sam · 8 h - 19 h
-          </span>
-          <span className="topbar-badge">Intervention sous 48 h</span>
-        </div>
-      </div>
-
-      {/* ============================================================
-           HEADER
-      ============================================================ */}
-      <header className="site-header">
+      {/* Header */}
+      <header className={`site-header${scrolled ? ' scrolled' : ''}`}>
         <div className="container header-inner">
-          <a href="#" className="brand" aria-label="Peintre intérieur Marseille — accueil">
-            <img src="/images/favicon.webp" alt="" width="40" height="40" className="brand-logo" />
-            <span className="brand-text">
-              <span className="brand-name">Peintre intérieur</span>
-              <span className="brand-city">Marseille</span>
-            </span>
+          <a href="#" className="brand">
+            <img src="/images/logo.png" alt="Logo Peintre Marseille" width="48" height="48" />
+            <div className="brand-text">
+              <span className="brand-label">Artisan</span>
+              <span className="brand-name">Peintre <span style={{ color: scrolled ? 'var(--accent)' : 'var(--accent)' }}>Marseille</span></span>
+            </div>
           </a>
 
-          <nav className="nav nav-desktop" aria-label="Navigation principale">
-            <a href="#services">Prestations</a>
-            <a href="#methode">Notre méthode</a>
-            <a href="#avis">Avis clients</a>
-            <a href="#faq">FAQ</a>
+          <nav className="nav">
+            {navLinks.map(l => (
+              <a key={l.label} href={l.href}>{l.label}</a>
+            ))}
           </nav>
 
-          <a href="#contact" className="btn btn-primary btn-header">Devis gratuit</a>
+          <a href="#contact" className="btn-devis">Devis gratuit</a>
 
-          <button type="button" className="menu-toggle" onClick={toggleMenu}
-                  aria-expanded={isMenuOpen} aria-controls="mobile-menu" aria-label="Ouvrir le menu">
-            <span></span><span></span><span></span>
+          <button className="menu-btn" onClick={() => setMenuOpen(true)} aria-label="Menu">
+            <Menu size={26} />
           </button>
         </div>
       </header>
 
-      {/* Menu mobile */}
-      <div className="mobile-menu" id="mobile-menu" hidden={!isMenuOpen}>
-        <div className="mobile-menu-backdrop" tabIndex="-1" onClick={closeMenu}></div>
-        <div className="mobile-menu-panel" role="dialog" aria-modal="true" aria-label="Menu de navigation">
-          <button type="button" className="mobile-menu-close" onClick={closeMenu} aria-label="Fermer le menu">
-            <svg viewBox="0 0 24 24" aria-hidden="true" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          </button>
-          <nav className="nav nav-mobile" aria-label="Navigation principale">
-            <a href="#services" onClick={closeMenu}>Prestations</a>
-            <a href="#methode" onClick={closeMenu}>Notre méthode</a>
-            <a href="#avis" onClick={closeMenu}>Avis clients</a>
-            <a href="#faq" onClick={closeMenu}>FAQ</a>
-            <a href="#contact" onClick={closeMenu}>Devis gratuit</a>
-          </nav>
-          <a href="tel:+33400000000" className="btn btn-primary btn-block">04 00 00 00 00</a>
-        </div>
-      </div>
+      {/* Mobile Menu Sidebar */}
+      <AnimatePresence>
+        {menuOpen && (
+          <>
+            <motion.div 
+              className="menu-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMenuOpen(false)}
+            />
+            <motion.div
+              className="mobile-menu"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            >
+              <div className="mobile-menu-top">
+                <div className="brand">
+                  <span className="brand-name">Peintre <span style={{ color: 'var(--accent)' }}>Marseille</span></span>
+                </div>
+                <button onClick={() => setMenuOpen(false)} className="close-menu-btn">
+                  <X size={28} />
+                </button>
+              </div>
+              <motion.nav 
+                initial="closed"
+                animate="open"
+                variants={{
+                  open: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
+                  closed: { transition: { staggerChildren: 0.05, staggerDirection: -1 } }
+                }}
+              >
+                {[...navLinks, { label: 'Contact', href: '#contact' }].map(l => (
+                  <motion.a 
+                    key={l.label} 
+                    href={l.href} 
+                    onClick={() => setMenuOpen(false)}
+                    variants={{
+                      open: { opacity: 1, x: 0 },
+                      closed: { opacity: 0, x: 20 }
+                    }}
+                  >
+                    {l.label}
+                  </motion.a>
+                ))}
+              </motion.nav>
+              <div className="mobile-menu-foot">
+                <a href="tel:+33400000000" className="mobile-cta-btn">
+                  <Phone size={18} /> 04 00 00 00 00
+                </a>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
-      {/* ============================================================
-           HERO
-      ============================================================ */}
-      <section className="hero" aria-labelledby="hero-title">
-        <div className="hero-media" aria-hidden="true">
-          <img src="/images/hero.webp" width="1600" height="900"
-               alt="" loading="eager" fetchpriority="high" decoding="async" />
-          <div className="hero-overlay"></div>
+      {/* Hero Split Layout */}
+      <section className="hero">
+        {/* Background Animation Blobs */}
+        <div className="hero-background-blobs">
+          <motion.div 
+            className="blob blob-1"
+            animate={{ 
+              x: [0, 150, -100, 0], 
+              y: [0, -150, 100, 0],
+              scale: [1, 1.3, 0.8, 1]
+            }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div 
+            className="blob blob-2"
+            animate={{ 
+              x: [0, -150, 150, 0], 
+              y: [0, 100, -150, 0],
+              scale: [1, 0.8, 1.2, 1]
+            }}
+            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div 
+            className="blob blob-3"
+            animate={{ 
+              x: [0, 100, -150, 0], 
+              y: [0, 150, -50, 0],
+              scale: [1, 1.2, 0.9, 1]
+            }}
+            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div 
+            className="blob blob-4"
+            animate={{ 
+              x: [0, -200, 100, 0], 
+              y: [0, -100, 150, 0],
+              scale: [1, 0.9, 1.1, 1]
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          />
         </div>
-        <div className="container hero-content">
-          <p className="eyebrow eyebrow--light">Artisan peintre spécialiste intérieur</p>
-          <h1 id="hero-title">
-            Peintre intérieur <span className="hero-city">Marseille</span>
-          </h1>
-          <p className="hero-lead">
-            Murs, plafonds, boiseries, papiers peints et revêtements muraux : votre intérieur mérite des finitions impeccables.
-            Artisan local à Marseille, nous transformons vos pièces avec rigueur et précision — devis gratuit sous 24 h.
-          </p>
-          <div className="hero-ctas">
-            <a href="#contact" className="btn btn-primary btn-lg">Obtenir un devis gratuit</a>
-            <a href="tel:+33400000000" className="btn btn-ghost btn-lg">
-              <svg viewBox="0 0 24 24" aria-hidden="true" width="20" height="20">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.72a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-              </svg>
-              04 00 00 00 00
-            </a>
+
+        <div className="container hero-container-split">
+          <motion.div 
+            className="hero-image-box"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1.2, ease: 'easeOut' }}
+          >
+            <img src="/images/hero-side.jpg" alt="Artisan peintre" loading="eager" fetchPriority="high" />
+          </motion.div>
+          
+          <div className="hero-text-box">
+            <div className="hero-content">
+              <motion.p className="hero-eyebrow" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+                Artisan peintre spécialiste intérieur
+              </motion.p>
+              <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.9 }}>
+                Peintre intérieur<br /><span className="city-accent">Marseille</span>
+              </motion.h1>
+              <motion.p className="hero-sub" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}>
+                Murs, plafonds, boiseries, papiers peints et revêtements muraux : votre intérieur mérite des finitions impeccables. Artisan local à Marseille, nous transformons vos pièces avec rigueur et précision — devis gratuit sous 24 h.
+              </motion.p>
+              <motion.div className="hero-actions" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }}>
+                <a href="#contact" className="btn-primary">Obtenir un devis gratuit</a>
+                <a href="tel:+33400000000" className="btn-ghost" style={{ gap: '0.75rem' }}><Phone size={15} /> 04 00 00 00 00</a>
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>
+
+      {/* Marquee */}
+      <div className="marquee-strip">
+        <div className="marquee-track">
+          {marqueeItems.map((item, i) => (
+            <span key={i} className="marquee-item">{item}</span>
+          ))}
+        </div>
+      </div>
     </>
   );
 }
